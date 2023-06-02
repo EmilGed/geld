@@ -1,0 +1,268 @@
+html, body {
+    padding: 0;
+    margin: 0;
+}
+a{
+    text-decoration: none;
+    color: black;
+}
+
+nav{
+    width: 100%;
+    background-color: gray;
+    padding: 1em 0 1em 0;
+    margin-bottom: 1em;
+    display: grid;
+    grid-template-columns: max-content auto max-content;
+}
+.navLogo{
+    font-size: 50px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+@media (max-width: 800px){
+    .navLogo{
+        font-size: 40px;
+        font-weight: bold;
+    }
+    .geldvonanDiv{
+        overflow-x: scroll;
+    }
+    .rechnungenDiv{
+        overflow-x: scroll;
+    }
+}
+nav a{
+    color: white;
+}
+.logout{
+    width: max-content;
+    display: inline;
+    text-align: center;
+    vertical-align: top;
+}
+.logout button{
+    margin-right: 1em;
+    border-radius: 5px;
+}
+.beschreibung{
+    width: fit-content;
+    word-wrap: break-word;
+    margin-left: 1em;
+}
+
+.border{
+    border: 1px solid black;
+    border-radius: 15px;
+    width: 90%;
+    margin: 0px auto 1em auto;
+    padding: 4px 4px 4px 0px;
+}
+
+.title{
+    font-size: 30px;
+    font-weight: bold;
+    margin: 10px 0 0 10px;
+}
+.teilnehmerList{
+    margin: 4px 0 10px 0;
+}
+.role{
+    font-size: 12px;
+    font-style: italic;
+}
+.owner{
+    color: blue;
+}
+.mitarbeiter{
+    color: green;
+}
+#teilnehmerHinzufügen{
+    margin-left: 30px;
+    margin-bottom: 10px;
+}
+.teilnehmerentfernen{
+    margin-left: 5px;
+    padding: 0 4px 0 4px;
+    color: red;
+}
+
+.neueRechnung{
+    position: fixed;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    top: 30%;
+
+    border: 1px solid black;
+    border-radius: 10px;
+    width: max-content;
+    padding: 1em 1em 2em 1em; /* Oder padding unten nur 1em, sieht auf mobile ein wenig besser aus*/
+    margin: 0 auto 0 auto;
+    background-color: white;
+}
+.headline{
+    display: grid;
+    grid-template-columns: auto max-content;
+}
+
+.headlineTitle{
+    text-align: center;
+    margin-bottom: 1em;
+    /* display: inline; */
+}
+
+.xButton{
+    color: red;
+    /* border: none; */
+}
+.xButtonDiv{
+    display: inline;
+    text-align: right;
+    width: max-content;
+}
+.numIn{
+    width: 70px;
+}
+.spacer{
+    width: max-content;
+    /* padding-left: 10px; */
+}
+.rechnZahl{
+    width: 100%;
+}
+.rechnZahl th{
+    text-align: left;
+}
+.rechnKostMid{
+    text-align: center;
+}
+
+.beglichen{
+    background-color: cadetblue;
+}
+.bold{
+    font-weight: bold;
+}
+.rechnung, .kostenPP{
+    margin: 10px 0 3px 10px;
+}
+
+.tableBorders,.tableBorders td, .tableBorders th{
+    border: 1px solid black;
+    border-radius: 4px;
+    border-collapse: collapse;
+}
+.kostenPPTab td{
+    text-align: center;
+}
+
+.geldAn td:not(.cell){
+    height: 40px;
+    min-width: 64px;
+    text-align: center;
+}
+.center{
+    text-align: center;
+}
+.geldAn{
+    margin: 10px 10px 3px 10px;
+    display: inline-block;
+}
+.neutral{
+    background-color: grey;
+}
+
+.cell {
+    display: grid;
+    width: max-content;
+    justify-content: space-between;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 100 100'><line x1='0' y1='0' x2='100' y2='100' stroke='black' vector-effect='non-scaling-stroke'/></svg>");
+    background-size: 100% 100%;
+}
+.cell--topRight {
+    grid-column-start: 2;
+    text-align: right;
+}
+.cell--bottomLeft {
+    grid-column-start: 1;
+}
+
+.capitalize{
+    text-transform: capitalize;
+}
+
+.rechnTable{
+    /* padding: 1em 1em 0 1em; */
+    border-collapse: collapse;
+    text-align: center;
+    width: max-content;
+    height: 1px;
+}
+.rechnTable td, .rechnTable th{
+    border: 1px solid #ddd;
+    padding: 8px;
+    position: relative;
+    height: 100%;
+}
+.rechnTable th{
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: #04AA6D;
+    color: white;
+    font-weight: bold;
+}
+.rechnTable tr:nth-child(even){background-color: #f2f2f2;}
+.rechnTable ul{
+    padding-left: 10px;
+    text-align: left;
+}
+
+.strike{
+    text-decoration: line-through;
+}
+.bezahlt{
+    background-color: rgba(0, 255, 0, .4) !important;
+}
+/* .bezahlt td:first-child:after {
+    position: absolute;
+    z-index: 1;
+    display: block;
+    text-align: left;
+    left: 113%;
+    top: 5%;
+    content:"Bezahlt";
+    color: rgba(0, 0, 0, .67);
+}  */
+
+.FürGrundKategorie{
+    height: 100%;
+    width: 120px;
+    display: grid;
+    grid-template-rows: 70% 20%;
+}
+
+.top{
+    vertical-align: top;
+    word-wrap: break-word;
+}
+
+.bottom{
+    vertical-align: bottom;
+}
+
+.rechnTableDiv{
+    width: max-content;
+    padding: 10px 10px 3px 10px;
+}
+
+table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { /* Nur für die Sorttable library*/
+    content: " \25BE" 
+}
+
+.RechnungNotiz{
+    max-width: 150px;
+}

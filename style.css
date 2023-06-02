@@ -1,0 +1,139 @@
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+.container{
+    width: 90%;
+    margin: 0px auto 1em auto;
+    border: 1px solid black;
+    border-radius: 15px;
+    display: grid;
+    grid-template-columns: max-content auto;
+    cursor: pointer;
+}
+
+.text{
+    display: grid;
+    grid-template-rows: max-content max-content auto;
+    /* margin-left: 10px; */
+}
+
+.name{
+    display: inline;
+    max-height: max-content;
+    font-weight: bolder;
+    font-size: 22px;
+    /* background-color: red; */
+}
+.teilnehmer{
+    font-size: 13px;
+    font-style: italic;
+    /* background-color: green; */
+}
+.desc{
+    word-break: normal;
+    font-size: 15px;
+    /* background-color: blue; */
+}
+
+.logo{
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+}
+.pic{
+    display: inline;
+    padding: 5px 5px 5px 5px;
+}
+
+a{
+    color: black;
+    text-decoration: none;
+}
+
+.new{
+    margin: 1em auto 0 auto;
+    width: max-content;
+}
+.new button{
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 5px 5px 5px 5px;
+    font-size: 25px;
+}
+.plus{
+    width: 20px;
+    height: 20px;
+    margin-bottom: 5px;
+    vertical-align: middle;
+}
+
+.neueReise{
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    top: 30%;
+    
+    border: 1px solid black;
+    border-radius: 10px;
+    width: max-content;
+    padding: 1em 1em 1em 1em;
+    margin: 0 auto 0 auto;
+    background-color: white;
+}
+.button{
+    margin-top: 1em;
+    text-align: center;
+}
+.nrHeadline h1{
+    margin-top: 0;
+    text-align: center;
+}
+.xButton{
+    color: red;
+    /* border: none; */
+}
+.xButtonDiv{
+    width: max-content;
+}
+.nrtop{
+    display: grid;
+    grid-template-columns: auto max-content;
+}
+.top{
+    vertical-align: middle;
+}
+
+nav{
+    width: 100%;
+    background-color: gray;
+    padding: 1em 0 1em 0;
+    margin-bottom: 1em;
+    display: grid;
+    grid-template-columns: auto max-content;
+}
+.navLogo{
+    font-size: 50px;
+    font-weight: bold;
+}
+@media (max-width: 1000px){
+    .navLogo{
+        font-size: 40px;
+        font-weight: bold;
+    }
+}
+nav a{
+    color: white;
+}
+.logout{
+    width: max-content;
+    display: inline;
+    text-align: center;
+    vertical-align: top;
+}
+.logout button{
+    margin-right: 1em;
+    border-radius: 5px;
+}

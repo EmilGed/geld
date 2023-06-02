@@ -1,0 +1,41 @@
+TODO Neue Rechnung Front-end fertig.
+[X] Werte die der DB übermittelt werden müssen beim drücken von submit in einem dir haben.
+[X] Werte, die oben gesammelt wurden, an changer.php übertragen können
+[X] Mit den Werten eine DB Struktur ausdenken
+[X] DB Struktur kreieren
+[X] changer.php fall für beide Rechnungsarten hinzufügen
+[X] testen
+
+TODO: Anzeigen, wieviel wer an wen zahlen muss
+[X] anzeigen, wie viel noch/insgesamt gezahlt werden muss/wurde
+[X] anzeigen, wieviel wer an wen zahlen muss.
+
+TODO: Rechnungen Anzeigen
+[X] Überlegen wie ich die Daten einer Rechnung anzeigen sollte
+[X] Daten so anzeigen
+[X] Rechnungen löschen können
+[X] Rechnungen bearbeiten können
+[X] Rechnungen direkt begleichen können
+[X] Datum den Rechnungen hinzufügen
+[X] Datum beglichen am?
+
+TODO: Dokumentation
+[X] Herausfinden was jede funktion macht und es Kommentieren
+
+TODO: Rechnungs Kategorien und Notiz
+[X] Datenbank anpassen
+[X] Rechnung erstellen Formular anpassen
+[X] Nach Kategorie Filtern
+
+TODO Kosten einzelner Kategorien einfügen
+[ ] Herausfinden wie ich das gut mache (Transport kosten als seperater Graph oder so)
+
+[ ] Beschreibung der Reise auf Mobile unter den Namen machen?
+
+[X] Wenn Person aus Rechnung entfernt wird deren Eintrag aus RechnungIndv löschen
+[X] BeglichenAm beim editieren wird auf das Editierdatum gesetzt. Sollte nicht so sein.
+[X] Wenn nur hasPayed verändert wird, müssen alle User ind ein Update kriegen.
+[X] Generell Edit überpfüfen, ob die Änderung alle klappen
+
+[ ] Rechnung vormerken, also noch niemand hat bezahlt, aber man weiß, dass sie kommt.
+[ ] Anzahlungen möglich machen?
