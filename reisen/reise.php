@@ -176,7 +176,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
         <!--//? Navbar -->
         <nav>
             <div class="navLogo">
-                <a><?php echo $reiseDetails["name"];?></a>
+                <a href="../index.php"><?php echo $reiseDetails["name"];?></a>
             </div>
             <div class="beschreibung">
                 <a><?php echo $reiseDetails["beschreibung"];?></a>
