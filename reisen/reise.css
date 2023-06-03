@@ -260,9 +260,19 @@ nav a{
 }
 
 table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { /* Nur für die Sorttable library*/
-    content: " \25BE" 
+    /* content: " \25BE"; */
+    content: " \2BC1";
+}
+
+table.sortable th:not(.sorttable_nosort){
+    cursor: pointer;
 }
 
 .RechnungNotiz{
     max-width: 150px;
+}
+
+.insgesamt{
+    text-align: center;
+    font-weight: bold;
 }
