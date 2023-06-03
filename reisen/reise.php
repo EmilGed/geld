@@ -1,5 +1,9 @@
 <?php
 
+function format($number){
+    return number_format($number, 2, ",", ".");
+}
+
 $rid = isset($_GET["rid"]) ? $_GET["rid"] : NULL;
 if($rid == NULL){
     echo "Keine Reise ID gegeben";
@@ -95,7 +99,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
             $kostenAufteilung = [];
             foreach($aufteilung as $i){
                 $asda = explode(":", $i);
-                $kostenAufteilung[$asda[0]] = [number_format((float)$asda[1], 2, '.', ''), $asda[0]];
+                $kostenAufteilung[$asda[0]] = [format((float)$asda[1]), $asda[0]];
             }
         }
         if($row["samePP"] === "1"){
@@ -110,8 +114,8 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
             }
         }
         $kategorieAusgaben[$row["KID"]] = isset($kategorieAusgaben[$row["KID"]]) ? $kategorieAusgaben[$row["KID"]]+$row["kosten"] : $row["kosten"];
-        $noch = number_format((float)$noch, 2, '.', '');
-        array_push($rechnungen, array("rechID"=>$row["rechID"], "samePP"=>$row["samePP"], "involved"=>$involved, "hasPayed"=>$hasPayed, "geldAn"=>$row["geldAn"], "kosten"=>number_format((float)$row["kosten"], 2, '.', ''), "kostenpp"=>number_format((float)$row["kostenpp"], 2, '.', ''), "kostenAufteilung"=>$kostenAufteilung, "beglichen"=>$row["beglichen"], "time"=>$row["time"], "beglichenAm"=>$row["beglichenAm"], "noch"=>$noch, "kostenAufteilungString"=>$row["kostenAufteilung"], "kategorie"=>$row["KID"], "notiz"=>$row["notiz"]));
+        $noch = format((float)$noch);
+        array_push($rechnungen, array("rechID"=>$row["rechID"], "samePP"=>$row["samePP"], "involved"=>$involved, "hasPayed"=>$hasPayed, "geldAn"=>$row["geldAn"], "kosten"=>format((float)$row["kosten"]), "kostenpp"=>format((float)$row["kostenpp"]), "kostenAufteilung"=>$kostenAufteilung, "beglichen"=>$row["beglichen"], "time"=>$row["time"], "beglichenAm"=>$row["beglichenAm"], "noch"=>$noch, "kostenAufteilungString"=>$row["kostenAufteilung"], "kategorie"=>$row["KID"], "notiz"=>$row["notiz"]));
     }
 
     //? KostenPP
@@ -191,7 +195,6 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 </form>
             </div>
         </nav>
-
         <!--//? Teilnehmer -->
         <div class="border">
             <div>
@@ -211,7 +214,6 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 </ul>
             </div>
         </div>
-        
         <!--//? Geld wer an wen-->
         <div class="border geldvonanDiv capitalize">
             <div>
@@ -228,8 +230,8 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                         <?php foreach($teilnehmer as $nehmer):?>
                         <tr>
                             <td><?php echo $namen[$nehmer["uid"]];?></td>
-                            <td><?php echo number_format($nehmer["offeneKos"], 2, ".", "");?>€</td>
-                            <td><?php echo number_format($nehmer["insgKos"], 2, ".", "");?>€</td>
+                            <td><?php echo format($nehmer["offeneKos"]);?>€</td>
+                            <td><?php echo format($nehmer["insgKos"]);?>€</td>
                         </tr>
                         <?php endforeach;?>
                     </table>
@@ -254,7 +256,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                                 <?php if($person == $geldAn || !isset($vonGeldAn[$person][$geldAn])):?>
                                     <td class="<?php echo $person == $geldAn ? "neutral" : "";?>">-</td>
                                 <?php else:?>
-                                    <td><?php echo number_format($vonGeldAn[$person][$geldAn], 2, ".", "");?>€</td>
+                                    <td><?php echo format($vonGeldAn[$person][$geldAn]);?>€</td>
                                 <?php endif;?>
                             <?php endforeach;?>
                         </tr>
@@ -341,12 +343,12 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                     <?php foreach(array_keys($kategorien) as $kategorie):?>
                     <tr>
                         <td><?php echo $kategorien[$kategorie];?></td>
-                        <td><?php echo (isset($kategorieAusgaben[$kategorie]) ? number_format((float)$kategorieAusgaben[$kategorie], 2, '.', '') : "0.00");?>€</td>
+                        <td><?php echo (isset($kategorieAusgaben[$kategorie]) ? format((float)$kategorieAusgaben[$kategorie]) : "0.00");?>€</td>
                     </tr>
                     <?php endforeach;?>
-                    <tfoot><tr> <!--in tfoot für die Sortier library -->
+                    <tfoot><tr class="insgesamt"> <!--in tfoot für die Sortier library -->
                         <td>Insgesamt: </td>
-                        <td><?php echo array_sum($kategorieAusgaben);?>€</td>
+                        <td><?php echo format(array_sum($kategorieAusgaben));?>€</td>
                     </tr></tfoot>
                 </table>
             </div>
