@@ -125,6 +125,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
             Neue Reise
         </button>
     </div>
+<!--//? Neue Rechnung  -->
     <template>
         <div class="neueReise" id="neueReise">
             <div class="nrtop">

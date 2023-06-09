@@ -1,151 +1,158 @@
 <?php
 
+function format($number){
+    return number_format($number, 2, ",", ".");
+}
+
 $rid = isset($_GET["rid"]) ? $_GET["rid"] : NULL;
 if($rid == NULL){
     echo "Keine Reise ID gegeben";
     header("Refresh: 1; url=../index.php"); // Nach einer Sekunde zur login-Seite
     exit(); // Damit das HTML nicht angezeigt wird.
 }
-
+$isLoggedIn = FALSE;
 if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] == "IchEsseKinder"){ // Eingeloggt
-    $mysqli = mysqli_connect('localhost', 'datalogger', 'hallo123', "geld");
-    mysqli_set_charset($mysqli, "utf8mb4");
-    
-    $teilnehmer = []; // Teilnehmer, uid und Rolle
-    $teilnehmerIds = [];
-    $namen = []; // Namen der User die involviert sind
-    $userIDs = [];
-    $teilnehmerString = "("; // uids in string (uid, uid...)
-    $isPublic = FALSE; // Sichtbarkeit der Reise
-    $userIsPart = FALSE; // User teil der Reise
-    $reiseDetails = []; // Argumente der Reise
-    $username = $_COOKIE["name"]; // Name des Users
-    $userID = $_COOKIE["userID"]; // uid des nutzer
-    $userRolle = 0;
+    $isLoggedIn = TRUE;
+} 
+// Nicht eingeloggt
+    //! Wieder auskommentieren, wenn ich fertig bin
+    // echo "Nicht eingeloggt";
+    // header("Refresh: 1; url=../login/login.php"); // Nach einer Sekunde zur login-Seite
+    // exit(); // Damit das HTML nicht angezeigt wird.
 
-    //?User Ids und Namen aller User bekommen
-    $query = "SELECT userID, name FROM `user` ORDER BY `userID`";
-    $result = $mysqli->query($query);
-    while($row = $result->fetch_assoc()){
-        $namen[$row["userID"]] = $row["name"];
-        array_push($userIDs, $row["userID"]);
+$mysqli = mysqli_connect('localhost', 'datalogger', 'hallo123', "geld");
+mysqli_set_charset($mysqli, "utf8mb4");
+
+$teilnehmer = []; // Teilnehmer, uid und Rolle
+$teilnehmerIds = [];
+$namen = []; // Namen der User die involviert sind
+$userIDs = [];
+$teilnehmerString = "("; // uids in string (uid, uid...)
+$isPublic = FALSE; // Sichtbarkeit der Reise
+$userIsPart = FALSE; // User teil der Reise
+$reiseDetails = []; // Argumente der Reise
+$username = isset($_COOKIE["name"]) ? $_COOKIE["name"] : NULL; // Name des Users
+$userID = isset($_COOKIE["userID"]) ? $_COOKIE["userID"] : NULL; // uid des nutzer
+$userRolle = 0;
+
+//? Details der Reise bekommen
+$query = "SELECT * FROM `reisen` WHERE `RID` = " . $rid;
+$result = $mysqli->query($query);
+while($row = $result->fetch_assoc()){
+    if($row["isPublic"] == 1){
+        $isPublic = TRUE;
     }
+    if($row["owner"] === $userID && $isLoggedIn){
+        $userIsPart = TRUE;
+        $userRolle = 2;
+    }
+    $teilnehmer[$row["owner"]] = ["uid"=>$row["owner"], "mitwirkend"=>"2", "offeneKos"=>0, "insgKos"=>0];
+    // array_push($teilnehmer, array("uid"=>$row["owner"], "mitwirkend"=>"2"));
+    array_push($teilnehmerIds, $row["owner"]);
+    $teilnehmerString .= $row["owner"] . ",";
+    $reiseDetails = array("owner"=>$row["owner"], "name"=>$row["name"], "beschreibung"=>$row["beschreibung"], "erstelltTime"=>$row["erstelltTime"]);
+}
 
-    //? Details der Reise bekommen
-    $query = "SELECT * FROM `reisen` WHERE `RID` = " . $rid;
-    $result = $mysqli->query($query);
-    while($row = $result->fetch_assoc()){
-        if($row["isPublic"] == 1){
-            $isPublic = TRUE;
+//?User Ids und Namen aller User bekommen
+$query = "SELECT userID, name FROM `user` ORDER BY `userID`";
+$result = $mysqli->query($query);
+while($row = $result->fetch_assoc()){
+    $namen[$row["userID"]] = $row["name"];
+    array_push($userIDs, $row["userID"]);
+}
+
+//? Teilnehmer der Reise und deren Rollen
+$query = "SELECT `userID`, `mitwirkend` FROM `reiseteilnehmer` WHERE `RID` = " . $rid;
+$result = $mysqli->query($query);
+while($row = $result->fetch_assoc()){
+    if($row["userID"] === $userID && $isLoggedIn){
+        $userRolle = $row["mitwirkend"] == "1" ? 1 : 0;
+        $userIsPart = TRUE;
+    }
+    $teilnehmer[$row["userID"]] = ["uid"=>$row["userID"], "mitwirkend"=>$row["mitwirkend"], "offeneKos"=>0, "insgKos"=>0];
+    // array_push($teilnehmer, array("uid"=>$row["userID"], "mitwirkend"=>$row["mitwirkend"]));
+    array_push($teilnehmerIds, $row["userID"]);
+    $teilnehmerString .= $row["userID"] . ",";
+}
+$teilnehmerString = substr($teilnehmerString, 0, -1) . ")";
+
+//? Weiterleiten zur homepage, wenn er nicht teil ist
+if((!$userIsPart and !$isPublic) || !$isLoggedIn && !$isPublic){
+    echo "Nicht teil der Reise / Reise nicht öffentlich";
+    header("Refresh: 1; url=../index.php");
+    exit();
+}
+
+//? Kategorien
+$kategorien = [];
+// $kategorien = ["0"=>"-"];
+$kategorieAusgaben = [];
+$query = "SELECT * FROM `kategorien`";
+$result = $mysqli->query($query);
+while($row = $result->fetch_assoc()){
+    $kategorien[$row["KID"]] = $row["name"];
+}
+
+//? Rechnungen
+$query = "SELECT * FROM `rechnungen` WHERE `RID` = " . $rid . " ORDER BY `time` DESC";
+$result = $mysqli->query($query);
+$rechnungen = [];
+while($row = $result->fetch_assoc()){
+    $involved = explode(",", $row["involved"]);
+    $hasPayed = explode(",", $row["hasPayed"]);
+    $kostenAufteilung = $row["kostenAufteilung"];
+    $noch = 0;
+    if($kostenAufteilung != NULL){
+        $aufteilung = explode(",", $kostenAufteilung);
+        $kostenAufteilung = [];
+        foreach($aufteilung as $i){
+            $asda = explode(":", $i);
+            $kostenAufteilung[$asda[0]] = [format((float)$asda[1]), $asda[0]];
         }
-        if($row["owner"] === $userID){
-            $userIsPart = TRUE;
-            $userRolle = 2;
-        }
-        $teilnehmer[$row["owner"]] = ["uid"=>$row["owner"], "mitwirkend"=>"2", "offeneKos"=>0, "insgKos"=>0];
-        // array_push($teilnehmer, array("uid"=>$row["owner"], "mitwirkend"=>"2"));
-        array_push($teilnehmerIds, $row["owner"]);
-        $teilnehmerString .= $row["owner"] . ",";
-        $reiseDetails = array("owner"=>$row["owner"], "name"=>$row["name"], "beschreibung"=>$row["beschreibung"], "erstelltTime"=>$row["erstelltTime"]);
     }
-
-    //? Teilnehmer der Reise und deren Rollen
-    $query = "SELECT `userID`, `mitwirkend` FROM `reiseteilnehmer` WHERE `RID` = " . $rid;
-    $result = $mysqli->query($query);
-    while($row = $result->fetch_assoc()){
-        if($row["userID"] === $userID){
-            $userRolle = $row["mitwirkend"] == "1" ? 1 : 0;
-            $userIsPart = TRUE;
-        }
-        $teilnehmer[$row["userID"]] = ["uid"=>$row["userID"], "mitwirkend"=>$row["mitwirkend"], "offeneKos"=>0, "insgKos"=>0];
-        // array_push($teilnehmer, array("uid"=>$row["userID"], "mitwirkend"=>$row["mitwirkend"]));
-        array_push($teilnehmerIds, $row["userID"]);
-        $teilnehmerString .= $row["userID"] . ",";
-    }
-    $teilnehmerString = substr($teilnehmerString, 0, -1) . ")";
-
-    //? Weiterleiten zur homepage, wenn er nicht teil ist
-    if(!$userIsPart and !$isPublic){
-        echo "Nicht teil der Reise / Reise nicht öffentlich";
-        header("Refresh: 1; url=../index.php");
-        exit();
-    }
-
-    //? Kategorien
-    $kategorien = [];
-    // $kategorien = ["0"=>"-"];
-    $kategorieAusgaben = [];
-    $query = "SELECT * FROM `kategorien`";
-    $result = $mysqli->query($query);
-    while($row = $result->fetch_assoc()){
-        $kategorien[$row["KID"]] = $row["name"];
-    }
-
-    //? Rechnungen
-    $query = "SELECT * FROM `rechnungen` WHERE `RID` = " . $rid . " ORDER BY `time` DESC";
-    $result = $mysqli->query($query);
-    $rechnungen = [];
-    while($row = $result->fetch_assoc()){
-        $involved = explode(",", $row["involved"]);
-        $hasPayed = explode(",", $row["hasPayed"]);
-        $kostenAufteilung = $row["kostenAufteilung"];
-        $noch = 0;
-        if($kostenAufteilung != NULL){
-            $aufteilung = explode(",", $kostenAufteilung);
-            $kostenAufteilung = [];
-            foreach($aufteilung as $i){
-                $asda = explode(":", $i);
-                $kostenAufteilung[$asda[0]] = [number_format((float)$asda[1], 2, '.', ''), $asda[0]];
+    if($row["samePP"] === "1"){
+        $amount = count($involved) - count($hasPayed);
+        // print_r($amount . "|" . intval($row["kostenpp"]) . ".");
+        $noch = $amount * doubleval($row["kostenpp"]);
+    }else{
+        foreach($kostenAufteilung as $aufteilung){
+            if(!in_array($aufteilung[1], $hasPayed)){
+                $noch += (float) $aufteilung[0];
             }
         }
-        if($row["samePP"] === "1"){
-            $amount = count($involved) - count($hasPayed);
-            // print_r($amount . "|" . intval($row["kostenpp"]) . ".");
-            $noch = $amount * doubleval($row["kostenpp"]);
+    }
+    $kategorieAusgaben[$row["KID"]] = isset($kategorieAusgaben[$row["KID"]]) ? $kategorieAusgaben[$row["KID"]]+$row["kosten"] : $row["kosten"];
+    $noch = format((float)$noch);
+    array_push($rechnungen, array("rechID"=>$row["rechID"], "samePP"=>$row["samePP"], "involved"=>$involved, "hasPayed"=>$hasPayed, "geldAn"=>$row["geldAn"], "kosten"=>format((float)$row["kosten"]), "kostenpp"=>format((float)$row["kostenpp"]), "kostenAufteilung"=>$kostenAufteilung, "beglichen"=>$row["beglichen"], "time"=>$row["time"], "beglichenAm"=>$row["beglichenAm"], "noch"=>$noch, "kostenAufteilungString"=>$row["kostenAufteilung"], "kategorie"=>$row["KID"], "notiz"=>$row["notiz"]));
+}
+
+//? KostenPP
+$query = "SELECT * FROM `rechnungenind` WHERE `RID` = " . $rid . " AND `userID` IN " . $teilnehmerString;
+$result = $mysqli->query($query);
+while($row = $result->fetch_assoc()){
+    if($row["beglichen"] == "0"){
+        $teilnehmer[$row["userID"]]["offeneKos"] += $row["betrag"];
+    }
+    $teilnehmer[$row["userID"]]["insgKos"] += $row["betrag"];
+}
+
+$query = "SELECT userID, geldAn, SUM(betrag) as betrag FROM `rechnungenind` WHERE `RID` = " . $rid . " AND `beglichen` = 0 GROUP BY `userID`, `geldAn`;";
+$result = $mysqli->query($query);
+$vonGeldAn = [];
+while($row = $result->fetch_assoc()){
+    $vonGeldAn[$row["userID"]][$row["geldAn"]] = $row["betrag"];
+}
+foreach(array_keys($vonGeldAn) as $von){
+    foreach(array_keys($vonGeldAn) as $an){
+        if($von == $an || !isset($vonGeldAn[$von][$an]) || !isset($vonGeldAn[$an][$von])) break;
+        if($vonGeldAn[$von][$an] > $vonGeldAn[$an][$von]){
+            $vonGeldAn[$von][$an] -= $vonGeldAn[$an][$von];
+            unset($vonGeldAn[$an][$von]);
         }else{
-            foreach($kostenAufteilung as $aufteilung){
-                if(!in_array($aufteilung[1], $hasPayed)){
-                    $noch += $aufteilung[0];
-                }
-            }
-        }
-        $kategorieAusgaben[$row["KID"]] = isset($kategorieAusgaben[$row["KID"]]) ? $kategorieAusgaben[$row["KID"]]+$row["kosten"] : $row["kosten"];
-        $noch = number_format((float)$noch, 2, '.', '');
-        array_push($rechnungen, array("rechID"=>$row["rechID"], "samePP"=>$row["samePP"], "involved"=>$involved, "hasPayed"=>$hasPayed, "geldAn"=>$row["geldAn"], "kosten"=>number_format((float)$row["kosten"], 2, '.', ''), "kostenpp"=>number_format((float)$row["kostenpp"], 2, '.', ''), "kostenAufteilung"=>$kostenAufteilung, "beglichen"=>$row["beglichen"], "time"=>$row["time"], "beglichenAm"=>$row["beglichenAm"], "noch"=>$noch, "kostenAufteilungString"=>$row["kostenAufteilung"], "kategorie"=>$row["KID"], "notiz"=>$row["notiz"]));
-    }
-
-    //? KostenPP
-    $query = "SELECT * FROM `rechnungenind` WHERE `RID` = " . $rid . " AND `userID` IN " . $teilnehmerString;
-    $result = $mysqli->query($query);
-    while($row = $result->fetch_assoc()){
-        if($row["beglichen"] == "0"){
-            $teilnehmer[$row["userID"]]["offeneKos"] += $row["betrag"];
-        }
-        $teilnehmer[$row["userID"]]["insgKos"] += $row["betrag"];
-    }
-
-    $query = "SELECT userID, geldAn, SUM(betrag) as betrag FROM `rechnungenind` WHERE `RID` = " . $rid . " AND `beglichen` = 0 GROUP BY `userID`, `geldAn`;";
-    $result = $mysqli->query($query);
-    $vonGeldAn = [];
-    while($row = $result->fetch_assoc()){
-        $vonGeldAn[$row["userID"]][$row["geldAn"]] = $row["betrag"];
-    }
-    foreach(array_keys($vonGeldAn) as $von){
-        foreach(array_keys($vonGeldAn) as $an){
-            if($von == $an || !isset($vonGeldAn[$von][$an]) || !isset($vonGeldAn[$an][$von])) break;
-            if($vonGeldAn[$von][$an] > $vonGeldAn[$an][$von]){
-                $vonGeldAn[$von][$an] -= $vonGeldAn[$an][$von];
-                unset($vonGeldAn[$an][$von]);
-            }else{
-                $vonGeldAn[$an][$von] -= $vonGeldAn[$von][$an];
-                unset($vonGeldAn[$von][$an]);
-            }
+            $vonGeldAn[$an][$von] -= $vonGeldAn[$von][$an];
+            unset($vonGeldAn[$von][$an]);
         }
     }
-}else{ // Nicht eingeloggt
-    echo "Nicht eingeloggt";
-    header("Refresh: 1; url=../login/login.php"); // Nach einer Sekunde zur login-Seite
-    exit(); // Damit das HTML nicht angezeigt wird.
 }
 ?>
 <!DOCTYPE html>
@@ -183,15 +190,16 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
             </div>
             <div class="logout">
                 <form method="post" action="../login/login.php">
-                    <button type="submit" name="logout">Ausloggen</button>
+                    <button type="submit" name="logout"><?php echo $isLoggedIn ? "Ausloggen" : "Einloggen";?></button>
+                    <?php if($isLoggedIn):?>
                     <br>
                     <a>Eingeloggt als: </a>
                     <br>
-                    <a><?php echo $_COOKIE["name"];?></a>
+                    <a><?php echo $username;?></a>
+                    <?php endif;?>
                 </form>
             </div>
         </nav>
-
         <!--//? Teilnehmer -->
         <div class="border">
             <div>
@@ -211,7 +219,6 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 </ul>
             </div>
         </div>
-        
         <!--//? Geld wer an wen-->
         <div class="border geldvonanDiv capitalize">
             <div>
@@ -228,8 +235,8 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                         <?php foreach($teilnehmer as $nehmer):?>
                         <tr>
                             <td><?php echo $namen[$nehmer["uid"]];?></td>
-                            <td><?php echo number_format($nehmer["offeneKos"], 2, ".", "");?>€</td>
-                            <td><?php echo number_format($nehmer["insgKos"], 2, ".", "");?>€</td>
+                            <td><?php echo format($nehmer["offeneKos"]);?>€</td>
+                            <td><?php echo format($nehmer["insgKos"]);?>€</td>
                         </tr>
                         <?php endforeach;?>
                     </table>
@@ -254,7 +261,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                                 <?php if($person == $geldAn || !isset($vonGeldAn[$person][$geldAn])):?>
                                     <td class="<?php echo $person == $geldAn ? "neutral" : "";?>">-</td>
                                 <?php else:?>
-                                    <td><?php echo number_format($vonGeldAn[$person][$geldAn], 2, ".", "");?>€</td>
+                                    <td><?php echo format($vonGeldAn[$person][$geldAn]);?>€</td>
                                 <?php endif;?>
                             <?php endforeach;?>
                         </tr>
@@ -333,7 +340,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 <a class="title">Ausgaben nach Kategorie</a>
             </div>
             <div class="rechnTableDiv">
-                <table class="tableBorders sortable">
+                <table class="tableBorders sortable center">
                     <tr>
                         <th>Kategorie</th>
                         <th class="sorttable_numeric">Ausgaben</th>
@@ -341,12 +348,12 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                     <?php foreach(array_keys($kategorien) as $kategorie):?>
                     <tr>
                         <td><?php echo $kategorien[$kategorie];?></td>
-                        <td><?php echo (isset($kategorieAusgaben[$kategorie]) ? number_format((float)$kategorieAusgaben[$kategorie], 2, '.', '') : "0.00");?>€</td>
+                        <td><?php echo (isset($kategorieAusgaben[$kategorie]) ? format((float)$kategorieAusgaben[$kategorie]) : "0.00");?>€</td>
                     </tr>
                     <?php endforeach;?>
-                    <tfoot><tr> <!--in tfoot für die Sortier library -->
+                    <tfoot><tr class="insgesamt"> <!--in tfoot für die Sortier library -->
                         <td>Insgesamt: </td>
-                        <td><?php echo array_sum($kategorieAusgaben);?>€</td>
+                        <td><?php echo format(array_sum($kategorieAusgaben));?>€</td>
                     </tr></tfoot>
                 </table>
             </div>
