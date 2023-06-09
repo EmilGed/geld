@@ -273,6 +273,6 @@ table.sortable th:not(.sorttable_nosort){
 }
 
 .insgesamt{
-    text-align: center;
+    text-align: left;
     font-weight: bold;
 }

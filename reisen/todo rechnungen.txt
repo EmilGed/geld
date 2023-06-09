@@ -39,3 +39,6 @@ TODO Kosten einzelner Kategorien einfügen
 
 [ ] Rechnung vormerken, also noch niemand hat bezahlt, aber man weiß, dass sie kommt.
 [ ] Anzahlungen möglich machen?
+
+[X] Wenn Reise öffentlich ist, ohne Login beitreten können.
+[ ] Reise Editieren können (Titel, Beschreibung, sichtbarkeit)
