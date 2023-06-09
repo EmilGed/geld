@@ -8,7 +8,10 @@ if($rid == NULL){
 }
 
 if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] == "IchEsseKinder"){ // Eingeloggt
-    $mysqli = mysqli_connect('localhost', 'datalogger', 'hallo123', "geld");
+    $myfile = fopen("../libs/DBLogin.txt", "r") or die("Unable to open file!");
+    $logindata = explode(" ", fread($myfile,filesize("../libs/DBLogin.txt")));
+    $mysqli = mysqli_connect($logindata[0], $logindata[1], $logindata[2], $logindata[3]);
+    fclose($myfile);
     mysqli_set_charset($mysqli, "utf8mb4");
     
     $teilnehmer = []; // Teilnehmer, uid und Rolle
@@ -346,7 +349,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                     <?php endforeach;?>
                     <tfoot><tr> <!--in tfoot für die Sortier library -->
                         <td>Insgesamt: </td>
-                        <td><?php echo array_sum($kategorieAusgaben);?>€</td>
+                        <td><?php echo number_format((float) array_sum($kategorieAusgaben), 2, ".", "") ;?>€</td>
                     </tr></tfoot>
                 </table>
             </div>

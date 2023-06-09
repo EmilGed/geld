@@ -1,6 +1,9 @@
 <?php
 if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
-    $mysqli = mysqli_connect('localhost', 'datalogger', 'hallo123', "geld");
+    $myfile = fopen("../libs/DBLogin.txt", "r") or die("Unable to open file!");
+    $logindata = explode(" ", fread($myfile,filesize("../libs/DBLogin.txt")));
+    $mysqli = mysqli_connect($logindata[0], $logindata[1], $logindata[2], $logindata[3]);
+    fclose($myfile);
     mysqli_set_charset($mysqli, "utf8mb4");
     if($_POST["type"] == "roleChanger"){
         $id = isset($_POST["id"]) ? $_POST["id"] : NULL;

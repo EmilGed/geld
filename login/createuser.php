@@ -3,7 +3,10 @@ if(isset($_POST["submit"])){
     $name = isset($_POST["name"]) ? str_replace("'", '"', $_POST["name"]) : NULL;
     $pass = isset($_POST["pass"]) ? password_hash($_POST["pass"], PASSWORD_DEFAULT) : NULL;
     if($name != NULL and $pass != NULL){
-        $mysqli = mysqli_connect('localhost', 'datalogger', 'hallo123', "geld");
+        $myfile = fopen("../libs/DBLogin.txt", "r") or die("Unable to open file!");
+        $logindata = explode(" ", fread($myfile,filesize("../libs/DBLogin.txt")));
+        $mysqli = mysqli_connect($logindata[0], $logindata[1], $logindata[2], $logindata[3]);
+        fclose($myfile);
         mysqli_set_charset($mysqli, "utf8mb4");
         $query = "INSERT INTO `user` (name, password) VALUES ('" . $name . "', '" . $pass . "');";
         $result = $mysqli->query($query);

@@ -4,8 +4,10 @@ function getPictureNumber($rid){
 }
 
 if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] == "IchEsseKinder"){ // Eingeloggt
-
-    $mysqli = mysqli_connect('localhost', 'datalogger', 'hallo123', "geld");
+    $myfile = fopen("libs/DBLogin.txt", "r") or die("Unable to open file!");
+    $logindata = explode(" ", fread($myfile,filesize("libs/DBLogin.txt")));
+    $mysqli = mysqli_connect($logindata[0], $logindata[1], $logindata[2], $logindata[3]);
+    fclose($myfile);
     mysqli_set_charset($mysqli, "utf8mb4");
 
     if(isset($_POST["submit"])){

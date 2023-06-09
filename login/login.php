@@ -1,7 +1,10 @@
 <?php
 function passwordRight($name, $pass){
     global $userID;
-    $mysqli = mysqli_connect('localhost', 'datalogger', 'hallo123', "geld");
+    $myfile = fopen("../libs/DBLogin.txt", "r") or die("Unable to open file!");
+    $logindata = explode(" ", fread($myfile,filesize("../libs/DBLogin.txt")));
+    $mysqli = mysqli_connect($logindata[0], $logindata[1], $logindata[2], $logindata[3]);
+    fclose($myfile);
     mysqli_set_charset($mysqli, "utf8mb4");
     $query = "SELECT `password`, `userID` FROM `user` WHERE `name` = '" . str_replace("'", '"', $name) . "'";
     $result = $mysqli->query($query);
