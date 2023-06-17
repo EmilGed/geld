@@ -59,7 +59,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
             $everybodyPayed = TRUE;
             foreach($involved as $i){ // Packt sachen in userRechn und guckt ob alle Bezahlt haben
                 $userRechn[$i] = ["uid"=>$i];
-                $userRechn[$i]["hasPayed"] = in_array($i, $hasPayed);
+                $userRechn[$i]["hasPayed"] = in_array($i, $hasPayed) ? "1" : "0";
                 if(!$userRechn[$i]["hasPayed"]){
                     $everybodyPayed = FALSE;
                 }
@@ -70,7 +70,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
                     $userRechn[$userExepnses[0]]["hastoPay"] = $userExepnses[1];
                 }
             }
-            $query = "INSERT INTO `rechnungen` (`rechID`, `RID`, `samePP`, `involved`, `hasPayed`, `geldAn`, `kosten`, `kostenpp`, `kostenAufteilung`, `beglichen`, `time`, `beglichenAm`, `KID`, `notiz`) VALUES (NULL, '" . $rid . "', '" . $isSame . "', '" . implode(",", $involved) . "', '" . implode("|", $hasPayed) . "', '" . $geldAn . "', '" . $insg . "', " . ($isSame ? $pp : "NULL") . ", ". (!$isSame ? "'" . implode(",", $pp) . "'" : "NULL") . ", '" . ($everybodyPayed ? "1" : "0") . "', CURRENT_TIMESTAMP, " . ($everybodyPayed ? "CURRENT_TIMESTAMP" : "NULL")  . ", " . $kategorie . ", '" . $notiz . "');";
+            $query = "INSERT INTO `rechnungen` (`rechID`, `RID`, `samePP`, `involved`, `hasPayed`, `geldAn`, `kosten`, `kostenpp`, `kostenAufteilung`, `beglichen`, `time`, `beglichenAm`, `KID`, `notiz`) VALUES (NULL, '" . $rid . "', '" . $isSame . "', '" . implode(",", $involved) . "', '" . implode(",", $hasPayed) . "', '" . $geldAn . "', '" . $insg . "', " . ($isSame ? $pp : "NULL") . ", ". (!$isSame ? "'" . implode(",", $pp) . "'" : "NULL") . ", '" . ($everybodyPayed ? "1" : "0") . "', CURRENT_TIMESTAMP, " . ($everybodyPayed ? "CURRENT_TIMESTAMP" : "NULL")  . ", " . $kategorie . ", '" . $notiz . "');";
             
             $result = $mysqli->query($query);
             $rechId = 0;
