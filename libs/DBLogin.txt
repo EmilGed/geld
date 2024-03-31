@@ -1,1 +1,1 @@
-localhost datalogger hallo123 geld
+host username password db
