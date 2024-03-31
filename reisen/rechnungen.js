@@ -134,7 +134,7 @@ function createKostenString(involved, pP){
 }
 
 function addRechnungsfenster(){
-    if(wasclicked ||editwasclicked){
+    if(wasclicked || editwasclicked){
         $("#neueRechnungLastTD").after(document.getElementsByTagName("template")[2].content.cloneNode(true))
     }
 }
