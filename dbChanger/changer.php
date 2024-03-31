@@ -181,5 +181,19 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
 
         print_r($query);
         $mysqli->multi_query($query);
+    }else if($_POST["type"] == "editReise"){
+        $rid = isset($_POST["rid"]) ? $_POST["rid"] : NULL;
+        $name = isset($_POST["name"]) ? $_POST["name"] : NULL;
+        $beschreibung = isset($_POST["beschreibung"]) ? $_POST["beschreibung"] : NULL;
+        $isPublic = isset($_POST["isPublic"]) ? $_POST["isPublic"] : NULL;
+        if($name || $beschreibung || $isPublic){
+            $query = "UPDATE `reisen` SET " . (!is_null($name) ? ("`name` = '" . $name . "'" . ((!is_null($beschreibung) || !is_null($isPublic)) ? ", " : "")) : "") .  (!is_null($beschreibung) ? ("`beschreibung` = '" . $beschreibung . "'" . ((!is_null($isPublic)) ? ", " : "")) : "") . (!is_null($isPublic) ? "`isPublic` = " . $isPublic : "") . " WHERE `reisen`.`RID` = " . $rid;
+            print_r($query);
+            if($mysqli->multi_query($query)){
+                http_response_code(200);
+            }else{
+                http_response_code(400);
+            }
+        }
     }
 }

@@ -78,7 +78,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
     $kategorien = [];
     // $kategorien = ["0"=>"-"];
     $kategorieAusgaben = [];
-    $query = "SELECT * FROM `kategorien`";
+    $query = "SELECT * FROM `kategorien` ORDER BY `orderID`";
     $result = $mysqli->query($query);
     while($row = $result->fetch_assoc()){
         $kategorien[$row["KID"]] = $row["name"];
@@ -130,6 +130,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
     $query = "SELECT userID, geldAn, SUM(betrag) as betrag FROM `rechnungenind` WHERE `RID` = " . $rid . " AND `beglichen` = 0 GROUP BY `userID`, `geldAn`;";
     $result = $mysqli->query($query);
     $vonGeldAn = [];
+    $geldAnVon = [];
     while($row = $result->fetch_assoc()){
         $vonGeldAn[$row["userID"]][$row["geldAn"]] = $row["betrag"];
     }
@@ -143,6 +144,11 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 $vonGeldAn[$an][$von] -= $vonGeldAn[$von][$an];
                 unset($vonGeldAn[$von][$an]);
             }
+        }
+    }
+    foreach($vonGeldAn as $von){
+        foreach(array_keys($von) as $an){
+            $geldAnVon[$an] = isset($geldAnVon[$an]) ? $von[$an] + $geldAnVon[$an] : $von[$an];
         }
     }
 }else{ // Nicht eingeloggt
@@ -173,6 +179,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
         <script src="../libs/sorttable.js"></script>
         <script src="teilnehmer.js"></script>
         <script src="rechnungen.js"></script>
+        <script src="bearbeiten.js"></script>
         <title>Reise: <?php echo $reiseDetails["name"]?></title>
     </head>
     <body>
@@ -184,13 +191,16 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
             <div class="beschreibung">
                 <a><?php echo $reiseDetails["beschreibung"];?></a>
             </div>
+            <div class="editButton">
+                <a id="editTitle">Bearbeiten</a>
+            </div>
             <div class="logout">
                 <form method="post" action="../login/login.php">
                     <button type="submit" name="logout">Ausloggen</button>
                     <br>
                     <a>Eingeloggt als: </a>
                     <br>
-                    <a><?php echo $_COOKIE["name"];?></a>
+                    <a class="capitalize"><?php echo $_COOKIE["name"];?></a>
                 </form>
             </div>
         </nav>
@@ -249,6 +259,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                         <?php foreach($teilnehmerIds as $id):?>
                             <td class="center"><?php echo $namen[$id];?></td>    
                         <?php endforeach;?>
+                        <td class="leftBorder">Ges.</td>
                     </tr>
                     <?php foreach($teilnehmerIds as $person):?>
                         <tr>
@@ -260,8 +271,16 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                                     <td><?php echo number_format($vonGeldAn[$person][$geldAn], 2, ".", "");?>€</td>
                                 <?php endif;?>
                             <?php endforeach;?>
+                            <td class="leftBorder"><?php echo number_format(array_sum(isset($vonGeldAn[$person]) ? $vonGeldAn[$person] : [0]), 2, ".", "");?>€</td>
                         </tr>
                     <?php endforeach;?>
+                    <tr>
+                        <td class="topBorder">Ges.</td>
+                        <?php foreach($teilnehmerIds as $person):?>
+                            <td class="topBorder"><?php echo isset($geldAnVon[$person]) ? number_format($geldAnVon[$person], 2, ".", "") : "0.00";?>€</td>
+                        <?php endforeach;?>
+                        <td class="neutral topBorder leftBorder">-</td>
+                    </tr>
                 </table>
             </div>    
         </div>
@@ -354,7 +373,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 </table>
             </div>
         </div>
-
+        
         <!--//? Templates  -->
 <!--//?NR. 0: hinzufügen von neuen Usern(Teilnehmer) -->
         <template>
@@ -491,6 +510,48 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 <a>Kosten insgesamt: <a id="rechnIndvInsgKost">0.00€</a></a>
             </div>
         </template>
+<!--//?NR. 5: Titel Bearbeiten Screen -->
+        <template>
+            <div class="neueRechnung" id="bearbeitenScreen">
+                <div class="headline">
+                    <div class="headlineTitle">
+                        <a class="title">Reise Bearbeiten</a>
+                    </div>
+                    <div class="xButtonDiv">
+                        <button class="xButton" id="closeBearbeiten">X</button>
+                    </div>
+                </div>
+                <div class="options">
+                    <table class="tableNeueRechnung">
+                        <tr>
+                            <td>Name: </td>
+                            <td>
+                                <input type="text" name="name" id="name" value="<?php echo $reiseDetails["name"];?>">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><a class="top">Beschreibung: </a></td>
+                            <td>
+                                <textarea name="beschreibung" id="beschreibung" cols="20" rows="3"><?php echo $reiseDetails["beschreibung"];?></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sichtbarkeit: </td>
+                            <td>
+                                <select name="visibility" id="visibility">
+                                    <option value="private" <?php echo $isPublic ? "" : "selected";?>>Privat</option>
+                                    <option value="public" <?php echo $isPublic ? "selected" : "";?>>Öffentlich</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
+                    <button type="submit" name="submit" id="editSubmit">Submit</button>
+                    <input type="hidden"  id="bearbDetails" value="<?php echo $reiseDetails["name"] . "|!§|" . $reiseDetails["beschreibung"] . "|!§|" . ($isPublic ? "public" : "private");?>">
+                </div>
+           </div>
+        </template>        
+
         <!--//? Values für Javascript -->
         <input type="hidden" id="rid" value="<?php echo $rid;?>">
     </body>

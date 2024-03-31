@@ -9,11 +9,11 @@ a{
 
 nav{
     width: 100%;
-    background-color: gray;
+    background-color: #808080;
     padding: 1em 0 1em 0;
     margin-bottom: 1em;
     display: grid;
-    grid-template-columns: max-content auto max-content;
+    grid-template-columns: max-content auto max-content max-content;
 }
 .navLogo{
     font-size: 50px;
@@ -26,6 +26,8 @@ nav{
         font-size: 40px;
         font-weight: bold;
     }
+}
+@media (max-width: 1170px){
     .geldvonanDiv{
         overflow-x: scroll;
     }
@@ -275,4 +277,20 @@ table.sortable th:not(.sorttable_nosort){
 .insgesamt{
     text-align: left;
     font-weight: bold;
+}
+
+.topBorder{
+    border-top-width: thick !important;
+}
+.leftBorder{
+    border-left-width: thick !important;
+}
+
+.editButton {
+    padding-top: 40px;
+    padding-right: 10px;
+    font-size: 10px;
+}
+.editButton a{
+    color: #a5a5a5;
 }
