@@ -5,7 +5,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
     $mysqli = mysqli_connect($logindata[0], $logindata[1], $logindata[2], $logindata[3]);
     fclose($myfile);
     mysqli_set_charset($mysqli, "utf8mb4");
-    if($_POST["type"] == "roleChanger"){
+    if($_POST["type"] == "roleChanger"){//? Rolle eines Teilnehmers Ändern
         $id = isset($_POST["id"]) ? $_POST["id"] : NULL;
         $rid = isset($_POST["rid"]) ? $_POST["rid"] : NULL;
         $newRole = isset($_POST["newRole"]) ? $_POST["newRole"] : NULL;
@@ -19,7 +19,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
         }else{
             http_response_code(400);
         }
-    }else if($_POST["type"] == "addTeil"){
+    }else if($_POST["type"] == "addTeil"){//? Teilnehmer der Reise hinzufügen
         $id = isset($_POST["id"]) ? $_POST["id"] : NULL;
         $rid = isset($_POST["rid"]) ? $_POST["rid"] : NULL;
         if($id != NULL && $rid != NULL){
@@ -32,7 +32,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
         }else{
             http_response_code(400);
         }
-    }else if($_POST["type"] == "removeTeil"){
+    }else if($_POST["type"] == "removeTeil"){//? Teilnehmer entfernen
         $id = isset($_POST["id"]) ? $_POST["id"] : NULL;
         if($id != NULL){
             $query = "DELETE FROM `reiseteilnehmer` WHERE `userID` = " . $id;
@@ -44,7 +44,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
         }else{
             http_response_code(400);
         }
-    }else if($_POST["type"] == "addRechnung"){ //? Funzt wieder :)
+    }else if($_POST["type"] == "addRechnung"){//? Rechnung erstellen
         $rid = isset($_POST["rid"]) ? $_POST["rid"] : NULL;
         $isSame = isset($_POST["isSame"]) ? ($_POST["isSame"] == "true" ? "1" : "0") : NULL;
         $involved = isset($_POST["involved"]) ? $_POST["involved"] : NULL;
@@ -86,7 +86,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
             $query = rtrim($query, ",") . ";";
             $mysqli->multi_query($query);
         }
-    }else if($_POST["type"] == "removeRechnung"){
+    }else if($_POST["type"] == "removeRechnung"){//? Rechnung löschen
         $rid = isset($_POST["rid"]) ? $_POST["rid"] : NULL;
         $rechID = isset($_POST["rechID"]) ? $_POST["rechID"] : NULL;
         $involved = isset($_POST["involved"]) ? "(" . $_POST["involved"] . ")" : NULL;
@@ -98,7 +98,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
                 http_response_code(400);
             }
         }
-    }else if($_POST["type"] == "begleichRechnung"){
+    }else if($_POST["type"] == "begleichRechnung"){//? Rechnung begleichen
         $rid = isset($_POST["rid"]) ? $_POST["rid"] : NULL;
         $rechID = isset($_POST["rechID"]) ? $_POST["rechID"] : NULL;
         $involved = isset($_POST["involved"]) ? $_POST["involved"] : NULL;
@@ -110,7 +110,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
                 http_response_code(400);
             }
         }
-    }else if($_POST["type"] == "editRechnung"){
+    }else if($_POST["type"] == "editRechnung"){//? Rechnung editieren
         $geldAn = $_POST["geldAn"]; // int
         $hasPayed = $_POST["hasPayed"]; // Array
         $involved = $_POST["involved"]; // Array
@@ -135,7 +135,7 @@ if(isset($_POST["key"]) && isset($_POST["type"])&& $_POST["key"] == "Lalilu"){
             }
         }
         // Überprüfen, ob die Rechnung nun beglichen ist und beglichen und beglichenAm ändern
-        if(in_array("hasPayed", $givenCols)){
+        if(in_array("hasPayed", $givenCols) || in_array("involved", $givenCols)){// Überprüft, ob die Teilnehmer, oder die die bezahlt haben sich verändert
             $beglichen = TRUE;
             print_r($involved);
             print_r($hasPayed);
