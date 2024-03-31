@@ -422,7 +422,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                             <td>
                                 <select name="geldAn" id="geldAn" class="capitalize">
                                     <?php foreach($teilnehmer as $id):?>
-                                        <option value="<?php echo $id["uid"]?>"><?php echo $namen[$id["uid"]];?></option>
+                                        <option <?php if($id["uid"] == $userID){echo "selected";}?> value="<?php echo $id["uid"]?>"><?php echo $namen[$id["uid"]];?></option>
                                     <?php endforeach;?>
                                 </select>
                             </td>

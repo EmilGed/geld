@@ -142,7 +142,7 @@ function addRechnungsfenster(){
 $(document).ready(() => {    
     $("body").on("click", "#neueRechnungStart", (e) => { //? Erstellt den Neue Rechnungsscreen
         if((wasclicked && editwasclicked) == false){
-            $("body").before(document.getElementsByTagName("template")[1].content.cloneNode(true))
+            $("body").before(document.getElementsByTagName("template")[1].content.cloneNode(true)) // Fügt Rechnungsfenster hinzu (#neueRechnungScreen)
             wasclicked = true
             screenisSame = true
             addRechnungsfenster()
