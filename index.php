@@ -99,7 +99,7 @@ if(isset($_COOKIE["logged_in"]) and isset($_COOKIE["key"]) and $_COOKIE["key"] =
                 <br>
                 <a>Eingeloggt als: </a>
                 <br>
-                <a><?php echo $_COOKIE["name"];?></a>
+                <a class="capitalize"><?php echo $_COOKIE["name"];?></a>
             </form>
         </div>
     </nav>
